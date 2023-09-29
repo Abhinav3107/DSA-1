@@ -10,20 +10,20 @@
  * Selections should be generated in lexicographic order.
  * a[0..k-1] is the smallest selection and a[n-k..n-1] is the largest.
  */
-void generate_selections(int a[], int n, int k, int b[], void *data, void (*process_selection)(int *b, int k, void *data))
-{
-    b[0] = 2; b[1] = 1;
-    process_selection(b, 2, data);
-    b[0] = 2; b[1] = 6;
-    process_selection(b, 2, data);
-    b[0] = 2; b[1] = 5;
-    process_selection(b, 2, data);
-    b[0] = 1; b[1] = 6;
-    process_selection(b, 2, data);
-    b[0] = 1; b[1] = 5;
-    process_selection(b, 2, data);
-    b[0] = 6; b[1] = 5;
-    process_selection(b, 2, data);
+void generate(int a[], int n, int k, int b[], int b_ind, int a_ind, void *data, void (*process_selection)(int *, int, void *)) {
+    if (b_ind == k) {
+        process_selection(b, k, data);
+        return;
+    }
+
+    for (int i = a_ind; i < n; i++) {
+        b[b_ind] = a[i];
+        generate(a, n, k, b, b_ind + 1, i + 1, data, process_selection);
+    }
+}
+
+void generate_selections(int a[], int n, int k, int b[], void *data, void (*process_selection)(int *, int, void *)) {
+    generate(a, n, k, b, 0, 0, data, process_selection);
 }
 
 /*
