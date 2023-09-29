@@ -34,6 +34,7 @@ void generate_selections(int a[], int n, int k, int b[], void *data, void (*proc
  * The dictionary parameter is an array of words, sorted in dictionary order.
  * nwords is the number of words in this dictionary.
  */
+
 void generate_splits(const char *source, const char *dictionary[], int nwords, char buf[], void *data, void (*process_split)(char buf[], void *data))
 {
     strcpy(buf, "art is toil");
@@ -46,15 +47,49 @@ void generate_splits(const char *source, const char *dictionary[], int nwords, c
  * Transform a[] so that it becomes the previous permutation of the elements in it.
  * If a[] is the first permutation, leave it unchanged.
  */
-void previous_permutation(int a[], int n)
-{
-    a[0] = 1;
-    a[1] = 5;
-    a[2] = 4;
-    a[3] = 6;
-    a[4] = 3;
-    a[5] = 2;
+
+// Function to reverse an array from start to end
+void reverse(int a[], int start, int end) {
+    while (start < end) {
+        int temp = a[start];
+        a[start] = a[end];
+        a[end] = temp;
+        start++;
+        end--;
+    }
 }
+
+// func To compute the previous permutation
+void previous_permutation(int a[], int n) {
+    // Find the largest index i such that a[i - 1] > a[i]
+    int i = n - 1;
+    while (i > 0 && a[i - 1] <= a[i]) {
+        i--;
+    }
+
+    // ascending order, it's the first permutation
+    if (i <= 0) {
+        return; // No previous permutation exists
+    }
+
+    // Find rightmost element's index that is less than a[i - 1]
+    int j = i - 1;
+    while (j + 1 < n && a[j + 1] < a[i - 1]) {
+        j++;
+    }
+
+    // Swap a[i - 1] and a[j]
+    int temp = a[i - 1];
+    a[i - 1] = a[j];
+    a[j] = temp;
+
+    // Reverse subarray 
+    reverse(a, i, n - 1);
+}
+
+
+
+
 
 /* Write your tests here. Use the previous assignment for reference. */
 
