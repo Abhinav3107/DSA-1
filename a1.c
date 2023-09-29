@@ -35,12 +35,52 @@ void generate_selections(int a[], int n, int k, int b[], void *data, void (*proc
  * nwords is the number of words in this dictionary.
  */
 
-void generate_splits(const char *source, const char *dictionary[], int nwords, char buf[], void *data, void (*process_split)(char buf[], void *data))
+
+void splits_art(char buf[], void *data) {
+    printf("%s\n", buf);
+}
+
+void generate_splits_initial(const char *src, const char *dict[], int nwords, char buf[], int src_ind, int buf_index, void *data, void (*splits_art)(char buf[], void *data))
 {
-    strcpy(buf, "art is toil");
-    process_split(buf, data);
-    strcpy(buf, "artist oil");
-    process_split(buf, data);
+    if (src_ind == strlen(src)) {
+        buf[buf_index] = '\0' ;
+        splits_art(buf, data);
+        return;
+    }
+    char cur_word[256];
+    int curr_word_ind = 0;
+    while (src_ind < strlen(src)) {
+        cur_word[curr_word_ind] = src[src_ind];
+        curr_word_ind++;
+        src_ind++;
+        cur_word[curr_word_ind] = '\0';
+        int word_index = 0;
+        while (word_index < nwords) {
+            if (strcmp(cur_word, dict[word_index]) == 0) {
+                strcpy(buf + buf_index, cur_word);
+                buf_index += strlen(cur_word);
+
+                if (src_ind < strlen(src)) {
+                    buf[buf_index] = ' ';
+                    buf_index++;
+                }
+                generate_splits_initial(src, dict, nwords, buf, src_ind, buf_index, data, splits_art);
+
+                buf_index -= strlen(cur_word);
+                if (src_ind < strlen(src)) {
+                    buf_index--;
+                }
+            }
+            word_index++;
+        }
+    }
+}
+
+void generate_splits(const char *source, const char *dict[], int nwords, char buf[], void *data, void (*splits_art)(char buf[], void *data))
+{
+    int src_ind = 0;
+    int buf_index = 0;
+    generate_splits_initial(source, dict, nwords, buf, src_ind, buf_index, data, splits_art);
 }
 
 /*
