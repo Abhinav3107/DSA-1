@@ -2,7 +2,7 @@
 #include <assert.h>
 
 #include "test.h"
-
+// Code for sim game
 /*
  * The status of a line.
  */
