@@ -6,9 +6,9 @@ enum {
 };
 
 typedef char board_t[4][5];
-typedef char player_t;
+typedef char player;
 
-int has_won(board_t board, player_t player)
+int has_won(board_t board, player player)
 {}
 
 int is_full(board_t board)
@@ -19,7 +19,7 @@ typedef struct {
     int score;
 } move_t;
 
-move_t best_move(board_t board, player_t player)
+move best_move(board_t board, player player)
 {}
 
 void print_board(board_t board)
