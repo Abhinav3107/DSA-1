@@ -1,0 +1,104 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_STATES 50000
+
+typedef struct {
+    char cubes[8];
+    char vacant;
+} State;
+
+typedef struct {
+    State state;
+    char steps;
+    char parent;
+    char move;
+} QueueItem;
+
+char visited[MAX_STATES];
+
+QueueItem queue[MAX_STATES];
+int front = 0;
+int rear = 0;
+
+char getParent(char p) {
+    if (p == -1)
+        return -1;
+    return queue[p].parent;
+}
+
+void printSolution(char stateIndex) {
+    if (stateIndex == -1)
+        return;
+
+    printSolution(getParent(stateIndex));
+    char move = queue[stateIndex].move;
+    printf("Step %d: Cube %d ", queue[stateIndex].steps, queue[stateIndex].state.vacant + 1);
+    if (move == 1) {
+        printf("Right\n");
+    } else if (move == -1) {
+        printf("Left\n");
+    }
+}
+
+void enqueue(State s, char steps, char parent, char move) {
+    queue[rear].state = s;
+    queue[rear].steps = steps;
+    queue[rear].parent = parent;
+    queue[rear].move = move;
+    rear = (rear + 1) % MAX_STATES;
+}
+
+State invertCube(State s, int cubeIndex) {
+    State newState = s;
+    newState.cubes[cubeIndex] = !s.cubes[cubeIndex];
+    return newState;
+}
+
+void solvePuzzle(State startState) {
+    front = rear = 0;
+    memset(visited, 0, sizeof(visited));
+
+    enqueue(startState, 0, -1, 0);
+    visited[startState.vacant] = 1;
+
+    while (front != rear) {
+        QueueItem item = queue[front];
+        front = (front + 1) % MAX_STATES;
+
+        if (item.state.cubes[0] == 1 && item.state.cubes[1] == 1 && item.state.cubes[2] == 1 &&
+            item.state.cubes[3] == 1 && item.state.cubes[4] == 1 && item.state.cubes[5] == 1 &&
+            item.state.cubes[6] == 1 && item.state.cubes[7] == 1) {
+            printf("Minimum number of moves: %d\n", item.steps);
+            printSolution(front - 1);
+            return;
+        }
+
+        for (int i = 0; i < 8; i++) {
+            State newState = invertCube(item.state, i);
+
+            if (!visited[newState.vacant]) {
+                visited[newState.vacant] = 1;
+                enqueue(newState, item.steps + 1, front - 1, i + 1);
+            }
+        }
+    }
+
+    printf("No solution found.\n");
+}
+
+int main() {
+    State startState;
+    for (int i = 0; i < 8; i++) {
+        printf("Enter 0 for upside down or 1 for right side up for cube %d: ", i + 1);
+        scanf("%d", &startState.cubes[i]);
+    }
+
+    printf("Enter the vacant place index (0-7): ");
+    scanf("%d", &startState.vacant);
+
+    solvePuzzle(startState);
+
+    return 0;
+}
