@@ -1,0 +1,103 @@
+#include <iostream>
+#include <vector>
+#include <unordered_set>
+#include <queue>
+
+using namespace std;
+
+// Define the initial and goal states of the cube
+typedef pair<vector<int>, vector<int>> CubeState;
+CubeState initial_state = {{0, 1, 2, 3, 4, 5, 6, 7}, {0, 0, 1, 1, 2, 2, 3, 3}};
+CubeState goal_state = {{0, 1, 2, 3, 4, 5, 6, 7}, {0, 1, 2, 3, 4, 5, 6, 7}};
+
+// Define the possible moves
+vector<string> moves = {"R", "U", "F", "R'", "U'", "F'", "R2", "U2", "F2"};
+
+// Function to apply a move to the cube state
+CubeState applyMove(const CubeState &state, const string &move) {
+    CubeState newState = state;
+    char face = move[0];
+    char direction = move[1];
+
+    if (direction == '\'') {
+        swap(newState.second[face - '0'], newState.second[(face - '0' + 1) % 4]);
+        swap(newState.first[face - '0'], newState.first[(face - '0' + 1) % 4]);
+    } else if (direction == '2') {
+        swap(newState.second[face - '0'], newState.second[(face - '0' + 2) % 4]);
+        swap(newState.first[face - '0'], newState.first[(face - '0' + 2) % 4]);
+    } else {
+        swap(newState.second[(face - '0' + 1) % 4], newState.second[(face - '0' + 2) % 4]);
+        swap(newState.first[(face - '0' + 1) % 4], newState.first[(face - '0' + 2) % 4]);
+    }
+
+    return newState;
+}
+
+// Function to check if the cube is in the goal state
+bool isGoalState(const CubeState &state) {
+    return state == goal_state;
+}
+
+// Function to solve the cube using breadth-first search
+vector<string> solveCube(const CubeState &start) {
+    unordered_set<CubeState> visited;
+    queue<pair<CubeState, vector<string>>> q;
+    q.push({start, {}});
+
+    while (!q.empty()) {
+        CubeState currentState = q.front().first;
+        vector<string> path = q.front().second;
+        q.pop();
+
+        if (isGoalState(currentState)) {
+            return path;
+        }
+
+        if (visited.find(currentState) == visited.end()) {
+            visited.insert(currentState);
+            for (const string &move : moves) {
+                CubeState newState = applyMove(currentState, move);
+                q.push({newState, path});
+                q.back().second.push_back(move);
+            }
+        }
+    }
+
+    return {}; // No solution found
+}
+
+// Function to print the solution sequence
+void printSolution(const vector<string> &solution) {
+    if (!solution.empty()) {
+        cout << "Solution:" << endl;
+        for (const string &move : solution) {
+            cout << move << " ";
+        }
+        cout << endl;
+    } else {
+        cout << "No solution exists." << endl;
+    }
+}
+
+// Function to convert a string representation of the cube to the internal tuple representation
+CubeState parseInput(const string &inputStr) {
+    vector<int> positions;
+    for (char ch : inputStr) {
+        if (isdigit(ch)) {
+            positions.push_back(ch - '0');
+        }
+    }
+    return {{positions.begin(), positions.begin() + 8}, {positions.begin() + 8, positions.end()}};
+}
+
+int main() {
+    // Example usage
+    cout << "Enter the initial position of the cube: ";
+    string inputStr;
+    cin >> inputStr;
+    CubeState startState = parseInput(inputStr);
+    vector<string> solution = solveCube(startState);
+    printSolution(solution);
+
+    return 0;
+}
